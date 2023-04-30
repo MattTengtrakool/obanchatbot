@@ -9,6 +9,32 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #4db6ac;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        main {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        footer {
+            background-color: #4db6ac;
+            padding: 20px;
+            text-align: center;
+            color: white;
         }
 
         .chat-container {
@@ -71,13 +97,21 @@
     </style>
 </head>
 <body>
-    <div class="chat-container" id="chat-container">
-        <div class="chat-message bot" id="bot-message">Welcome to the AI Credit Score Predictor Chatbot! Please enter your annual income (NGN):</div>
-    </div>
+    <header>
+        Oban Credit Score Predicter
+    </header>
+    <main>
+        <div class="chat-container" id="chat-container">
+            <div class="chat-message bot" id="bot-message">Hi there! I'm here to help you predict your credit score. Let's start with your annual income (NGN):</div>
+        </div>
+    </main>
     <form id="chat-form">
         <input type="text" id="user-input" autocomplete="off" required>
         <button type="submit">Send</button>
     </form>
+    <footer>
+        &copy; 2023 Oban Market Credit Score Predictor. All rights reserved.
+    </footer>
 
     <script>
         function isValidNumber(value) {
