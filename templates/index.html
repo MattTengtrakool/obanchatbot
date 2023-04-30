@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Credit Score Predictor Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 400px;
+            margin: 50px auto;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-message {
+            max-width: 80%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .chat-message.user {
+            align-self: flex-end;
+            background-color: #4db6ac;
+            color: white;
+        }
+
+        .chat-message.bot {
+            align-self: flex-start;
+            background-color: white;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            margin-top: auto;
+        }
+
+        input {
+            flex-grow: 1;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button {
+            background-color: #4db6ac;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 10px;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container" id="chat-container">
+        <div class="chat-message bot" id="bot-message">Welcome to the AI Credit Score Predictor Chatbot! Please enter your annual income (NGN):</div>
+    </div>
+    <form id="chat-form">
+        <input type="text" id="user-input" autocomplete="off" required>
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        function isValidNumber(value) {
+            const number = parseFloat(value);
+            return !isNaN(number) && isFinite(number);
+        }
+
+        const questions = [
+            { key: "income", label: "annual income (NGN)" },
+            { key: "late_payments", label: "number of late payments" },
+            { key: "credit_utilization", label: "credit utilization ratio (0-1)" },
+            { key: "employment_years", label: "years of employment" },
+            { key: "age", label: "age" },
+            { key: "credit_accounts", label: "number of credit accounts" },
+            { key: "debt_to_income", label: "debt-to-income ratio (0-1)" },
+        ];
+
+        let currentQuestion = 0;
+        const form = document.getElementById("chat-form");
+        const chatContainer = document.getElementById("chat-container");
+        const botMessage = document.getElementById("bot-message");
+        const userInput = document.getElementById("user-input");
+        const answers = {};
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const answer = userInput.value.trim();
+                    // Display user message
+                if (!isValidNumber(answer)) {
+                    // Display an error message if the input is not a valid number
+                    botMessage.textContent = `Please enter a valid number for ${questions[currentQuestion].label}:`;
+                    return;
+                }
+        const userMessage = document.createElement("div");
+        userMessage.classList.add("chat-message", "user");
+        userMessage.textContent = answer;
+        chatContainer.appendChild(userMessage);
+
+        answers[questions[currentQuestion].key] = answer;
+
+        currentQuestion++;
+        userInput.value = "";
+
+        if (currentQuestion < questions.length) {
+            // Display next question
+            botMessage.textContent = `Please enter your ${questions[currentQuestion].label}:`;
+        } else {
+            // All questions answered, process the data
+            botMessage.textContent = "Calculating your credit score...";
+
+            const formData = new FormData();
+            for (const [key, value] of Object.entries(answers)) {
+                formData.append(key, value);
+            }
+
+            const response = await fetch("/predict_credit_score", {
+                method: "POST",
+                body: formData,
+            });
+            const result = await response.json();
+
+            // Display credit score
+            botMessage.textContent = `Your predicted credit score is: ${result.credit_score.toFixed(2)}`;
+
+            if (result.suitable_providers.length > 0) {
+                const providersMessage = document.createElement("div");
+                providersMessage.classList.add("chat-message", "bot");
+                providersMessage.textContent = "Here are some suitable loan providers based on your data:";
+                chatContainer.appendChild(providersMessage);
+
+                for (const provider of result.suitable_providers) {
+                    const providerMessage = document.createElement("div");
+                    providerMessage.classList.add("chat-message", "bot");
+                    providerMessage.textContent = provider.name;
+                    chatContainer.appendChild(providerMessage);
+                }
+            } else {
+                const noProvidersMessage = document.createElement("div");
+                noProvidersMessage.classList.add("chat-message", "bot");
+                noProvidersMessage.textContent = "Unfortunately, we couldn't find any suitable loan providers based on your data.";
+                chatContainer.appendChild(noProvidersMessage);
+            }
+        }
+
+        // Scroll to the bottom of the chat container
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+</script>
+</body>
+</html>
+
+

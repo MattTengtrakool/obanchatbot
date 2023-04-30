@@ -1,0 +1,4 @@
+name,min_income,max_debt_to_income,min_credit_utilization,max_credit_utilization,min_employment_years
+Provider A,200000,0.4,0,0.6,2
+Provider B,300000,0.35,0,0.5,3
+Provider C,150000,0.45,0,0.7,1
